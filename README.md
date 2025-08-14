@@ -21,6 +21,7 @@ in skill building to develop with _NRN_.
 
 ### Documentation
 [![Docs](https://img.shields.io/badge/docs-latest-blue)](https://hjchoe.github.io/nrn/)
+
 The API reference and additional documentation for NRN are available
 on through the [site](https://hjchoe.github.io/nrn/).
 The current code is in an Alpha state so there may be bugs and the functionality
