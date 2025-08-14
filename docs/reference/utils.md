@@ -1,1 +1,1 @@
-::: torchlogic.utils.trainers.BanditNRNTrainer
+::: nrn.utils.trainers.BanditNRNTrainer

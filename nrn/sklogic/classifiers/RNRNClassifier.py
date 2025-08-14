@@ -18,6 +18,23 @@ from ..base.base_estimator import BaseSKLogicEstimator
 
 class RNRNClassifier(BaseSKLogicEstimator):
 
+    """
+    Scikit-learn–compatible Neuro‑Reasoning classifier.
+
+    This estimator wraps a Bandit-driven Neuro‑Reasoning Network (NRN) that learns
+    sparse logical structures over (optionally) binarized features and exposes a
+    familiar `fit/predict` API together with local, textual explanations via
+    `explain_sample`.
+
+    Notes
+    -----
+    - Supports binary and multi-label classification. Set ``multi_class=True`` to
+      evaluate with multi-class metrics during training; local explanations are
+      currently unavailable for multi-class.
+    - The model expects pandas DataFrames at inference/training time. Numpy arrays
+      are accepted and will be converted internally.
+    """
+
     def __init__(
             self,
             target_names: list = None,
@@ -63,49 +80,99 @@ class RNRNClassifier(BaseSKLogicEstimator):
             num_workers: bool = False
     ):
         """
-        RNRN Scikit-Learn compatible classifier.
+        Initialize an RNRNClassifier with architecture, pruning, and training options.
 
-    `   Args:
-            target_names List[str]: List of names for targets
-            feature_names List[str]: List of desired feature names
-            layer_sizes List[int]: List of layer sizes corresponding to width of each layer
-            n_selected_features_input (int): Number of input features selected in each input logic
-            n_selected_features_internal (int): Number of hidden features selected in each hidden logic
-            n_selected_features_output (int): Number of hidden features selected for each output logic
-            perform_prune_quantile (float): Quantile of model to prune during pruning phase
-            ucb_scale (float): UCB scale to use for multi-armed bandit
-            prune_strategy (str): Prune strategy, one of 'class', 'logic', 'class_logic'
-            delta (float): Factor used to reduce likelihood of sampling un-pruned logic during growth phase
-            bootstrap (bool): If using logic prune strategy, evaluate with bootstrap sampling
-            swa (bool): If true, use swa weight averaging
-            add_negations (bool): If true, add negated logic on initialization
-            normal_form (str): Conjunctive normal form or disjunctive normal form structure, 'cnf' or 'dnf'
-            weight_init (float): Weigh initialization magnitude
-            logits (bool): If true, output are logits, otherwise unscaled.
-            binarization (bool): if true, use feature binarization from trees
-            tree_num (int): number of trees for feature binarization from trees
-            tree_depth (int): depth of trees for feature binarization from trees
-            tree_feature_selection (float): feature selection rate for feature binarization from trees
-            thresh_round (int): rounding threshold in decimal places for feature binarzation from trees
-            loss_func (Loss): PyTorch loss
-            learning_rate (float): learning rate for AdamW optimizer
-            weight_decay (float): weight decay for AdamW optimizer
-            t_0 (int): T_0 for CosineAnnealingWithWarmRestarts scheduler
-            t_mult (int): T_mult for CosineAnnealingWithWarmRestarts scheduler
-            epochs (int): epochs for training procedure
-            batch_size (int): batch size for data loading
-            holdout_pct (float): percentage of training data used as holdout for early stopping
-            early_stopping_plateau_count (int): number of epochs without improvement for early stopping
-            perform_prune_plateau_count (int): Perform pruning phase after plateau count epochs without improvement
-            increase_prune_plateau_count (int): Increase the perform_prune_plateau_count by this number if plateaued
-            increase_prune_plateau_count_plateau_count (int): Increase perform_prune_plateau_count when reached .
-            lookahead_steps (int): number of steps for lookahead optimization. If zero, lookahead not used.
-            lookahead_steps_size (float): step size for lookahead optimization.  If lookahead_steps is zero not used.
-            evaluation_metric (metric): Scikit-Learn metric function
-            multi_class (bool): If true, treat as multi-class problem, otherwise multi-label or binary
-            pin_memory (bool): pin_memory for data loaders.
-            persistent_workers (bool): persistent workers for data loaders.
-            num_workers (int): number of workers for data loaders.
+        Parameters
+        ----------
+        target_names : list of str, optional
+            Human‑readable class names. If ``None``, names like ``"Class 0"`` are
+            generated from the target columns during ``fit``.
+        feature_names : list of str, optional
+            Feature names to use when input is not a DataFrame. When ``X`` is a
+            :class:`pandas.DataFrame`, its columns are used instead.
+        layer_sizes : list of int, default=[8, 8]
+            Hidden layer widths of the reasoning network.
+        n_selected_features_input : int, default=4
+            Number of features sampled per input logic unit.
+        n_selected_features_internal : int, default=4
+            Number of features sampled per hidden logic unit.
+        n_selected_features_output : int, default=4
+            Number of hidden features sampled per output logic unit.
+        perform_prune_quantile : float, default=0.5
+            Quantile of logic to prune during the pruning phase.
+        ucb_scale : float, default=1.5
+            Exploration scale for the bandit policy (Upper-Confidence Bound).
+        prune_strategy : {'class', 'logic', 'class_logic'}, default='class'
+            Strategy used when pruning logic units.
+        delta : float, default=2.0
+            Factor to reduce the likelihood of sampling recently pruned logic during growth.
+        bootstrap : bool, default=False
+            If ``True`` and a logic‑level prune strategy is used, evaluate with bootstrap
+            sampling when pruning.
+        swa : bool, default=False
+            If ``True``, use Stochastic Weight Averaging during training.
+        add_negations : bool, default=False
+            If ``True``, include negated logic at initialization.
+        normal_form : {'cnf', 'dnf'}, default='cnf'
+            Logical normal form used by the network.
+        weight_init : float, default=0.2
+            Initialization magnitude for logic weights.
+        logits : bool, default=True
+            If ``True``, model outputs are logits; otherwise they are unscaled probabilities.
+        binarization : bool, default=False
+            If ``True``, enable tree‑based feature binarization prior to learning.
+        tree_num : int, default=10
+            Number of trees used for feature binarization.
+        tree_depth : int, default=5
+            Depth of the binarization trees.
+        tree_feature_selection : float, default=0.5
+            Fraction of features sampled per split during binarization.
+        thresh_round : int, default=3
+            Decimal rounding applied to thresholds from tree binarization.
+        loss_func : callable, default=torch.nn.BCEWithLogitsLoss
+            PyTorch loss constructor. It will be instantiated with no args.
+        learning_rate : float, default=0.1
+            Learning rate for the AdamW optimizer.
+        weight_decay : float, default=0.001
+            L2 weight decay for AdamW.
+        t_0 : int, default=3
+            Initial period for :class:`torch.optim.lr_scheduler.CosineAnnealingWarmRestarts`.
+        t_mult : int, default=2
+            Multiplicative factor for the restart period.
+        epochs : int, default=200
+            Number of training epochs.
+        batch_size : int, default=32
+            Batch size for DataLoaders.
+        holdout_pct : float, default=0.2
+            Fraction of the training set reserved as validation for early stopping.
+        early_stopping_plateau_count : int, default=20
+            Stop training if the validation metric does not improve for this many epochs.
+        perform_prune_plateau_count : int, default=3
+            Trigger a pruning phase after this many stagnant epochs.
+        increase_prune_plateau_count : int, default=10
+            Amount by which to increase ``perform_prune_plateau_count`` after pruning.
+        increase_prune_plateau_count_plateau_count : int, default=10
+            Additional increment applied when repeated plateaus are observed.
+        lookahead_steps : int, default=0
+            Number of lookahead optimization steps (0 disables lookahead).
+        lookahead_steps_size : float, default=0.0
+            Step size for lookahead optimization.
+        evaluation_metric : callable, default=sklearn.metrics.roc_auc_score
+            Metric function used to select the best checkpoint during training.
+        multi_class : bool, default=False
+            If ``True``, treat the problem as multi‑class during evaluation.
+        pin_memory : bool, default=False
+            Passed to PyTorch DataLoader for faster host‑to‑GPU transfers.
+        persistent_workers : bool, default=False
+            Keep DataLoader workers alive between iterations (PyTorch 1.7+).
+        num_workers : int, default=0
+            Number of DataLoader worker processes. (Note: the constructor type hints
+            declare ``bool`` but the intended type is ``int``.)
+
+        Notes
+        -----
+        This constructor only stores hyperparameters. The underlying model and trainer
+        are created during `fit`.
         """
         super(RNRNClassifier, self).__init__(
             binarization=binarization,
@@ -163,14 +230,27 @@ class RNRNClassifier(BaseSKLogicEstimator):
 
     def fit(self, X: pd.DataFrame, y: pd.DataFrame) -> None:
         """
-        Fit the model
+        Fit the classifier on training data.
 
-        Args:
-            X (pd.DataFrame): Dataframe of features
-            y (pd.DataFrame): Dataframe of targets
+        Parameters
+        ----------
+        X : pandas.DataFrame or array-like of shape (n_samples, n_features)
+            Training features. If not a DataFrame, it will be converted and feature
+            names inferred/assigned.
+        y : pandas.DataFrame or array-like, shape (n_samples, n_targets)
+            Training targets. For binary single‑output tasks, a single column/array is
+            expected. Multi‑label is supported via multiple columns.
 
-        Returns:
-            None
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        - Internally constructs a :class:`BanditNRNClassifier` using the MIC‑based
+          policy initialization and trains it with AdamW and cosine‑annealing restarts.
+        - Early stopping and periodic pruning are controlled by the corresponding
+          hyperparameters.
         """
         if not isinstance(X, pd.DataFrame):
             X = self._handle_non_dataframe_features(X)
@@ -260,13 +340,25 @@ class RNRNClassifier(BaseSKLogicEstimator):
     # def predict(self, X: pd.DataFrame) -> pd.DataFrame:
     def predict(self, X: pd.DataFrame, decision_boundary=0.5) -> pd.DataFrame:
         """
-        Predict classes with fitted model on new data.
+        Predict class labels for the provided samples.
 
-        Args:
-            X (pd.DataFrame): Untransformed input features
+        Parameters
+        ----------
+        X : pandas.DataFrame or array-like of shape (n_samples, n_features)
+            Untransformed input features. If not a DataFrame, it will be converted.
+        decision_boundary : float, default=0.5
+            Threshold applied to predicted probabilities to obtain class labels.
+        
+        Returns
+        -------
+        pandas.DataFrame
+            Binary predictions with one column per class (or target). Column names
+            match ``target_names`` when available.
 
-        Returns:
-            pd.DataFrame: Predictions from fitted model
+        Raises
+        ------
+        AssertionError
+            If the model has not been fitted.
         """
         assert self.model is not None, "must fit before prediction"
 
@@ -294,13 +386,23 @@ class RNRNClassifier(BaseSKLogicEstimator):
 
     def predict_proba(self, X: pd.DataFrame) -> pd.DataFrame:
         """
-        Predict probabilities with fitted model on new data.
+        Predict class probabilities for the provided samples.
 
-        Args:
-            X (pd.DataFrame): Untransformed input features
+        Parameters
+        ----------
+        X : pandas.DataFrame or array-like of shape (n_samples, n_features)
+            Untransformed input features. If not a DataFrame, it will be converted.
 
-        Returns:
-            pd.DataFrame: Predictions from fitted model
+        Returns
+        -------
+        pandas.DataFrame
+            Probabilities of shape ``(n_samples, n_classes)`` with one column per
+            class (or target). Column names match ``target_names`` when available.
+
+        Raises
+        ------
+        AssertionError
+            If the model has not been fitted.
         """
         assert self.model is not None, "must fit before prediction"
 
@@ -326,14 +428,24 @@ class RNRNClassifier(BaseSKLogicEstimator):
 
     def score(self, X: pd.DataFrame, y: pd.DataFrame) -> float:
         """
-        Score a model with new data using the evaluation metric
+        Compute the evaluation metric on given test data and labels.
 
-        Args:
-            X (pd.DataFrame): Untransformed input features
-            y (pd.DataFrame): target input
+        Parameters
+        ----------
+        X : pandas.DataFrame or array-like of shape (n_samples, n_features)
+            Untransformed input features. If not a DataFrame, it will be converted.
+        y : pandas.DataFrame or array-like, shape (n_samples, n_targets)
+            Ground‑truth targets aligned with ``X``.
 
-        Returns:
-            float: score from evaluation metric
+        Returns
+        -------
+        float
+            The score produced by ``evaluation_metric`` (ROC‑AUC by default).
+
+        Raises
+        ------
+        AssertionError
+            If the model has not been fitted.
         """
         assert self.model is not None, "must fit before scoring"
 
@@ -363,10 +475,12 @@ class RNRNClassifier(BaseSKLogicEstimator):
 
     def _get_instance_params(self):
         """
-        Get parameters for this model type.
+        Return a dictionary of instance hyperparameters.
 
-        Returns:
-            dict: parameters and values
+        Returns
+        -------
+        dict
+            A mapping from hyperparameter names to their current values.
         """
         return {
             'layer_sizes': self.layer_sizes,
@@ -398,16 +512,35 @@ class RNRNClassifier(BaseSKLogicEstimator):
             decision_boundary: float = 0.5
     ) -> str:
         """
-        Generate a sample explanation
+        Generate a local, human‑readable explanation for a single sample.
 
-        Args:
-            X (pd.DataFrame): DataFrame of input features.
-            sample_index (int): Index of sample to explain.
-            quantile (float): Percent of model to explain
-            decision_boundary (float): Decision boundary for positive class
+        Parameters
+        ----------
+        X : pandas.DataFrame or array-like of shape (n_samples, n_features)
+            Input features; if not a DataFrame, it will be converted. Columns (or
+            provided ``feature_names``) should match those seen during training.
+        sample_index : int, default=0
+            Row index within ``X`` to explain.
+        quantile : float, default=1.0
+            Fraction (0, 1] of the model’s most important logic to include.
+        decision_boundary : float, default=0.5
+            Threshold used to convert probabilities to class decisions in the text.
 
-        Returns:
-            str: explanation for selected sample
+        Returns
+        -------
+        str
+            A textual explanation describing which (possibly binarized) features and
+            logical clauses influenced the prediction.
+
+        Raises
+        ------
+        AssertionError
+            If ``multi_class`` is True (unsupported) or if the model has not been fitted.
+
+        Notes
+        -----
+        Explanations include value bounds when binarization is disabled; when enabled,
+        explanations refer to thresholded (tree‑derived) feature predicates.
         """
         assert not self.multi_class, "explanation not currently supported for multi-class"
         assert self.model is not None, "must fit before explaining"

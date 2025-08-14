@@ -1,11 +1,11 @@
-::: torchlogic.nn.Predicates
+::: nrn.nn.Predicates
 
-::: torchlogic.nn.LukasiewiczChannelAndBlock
+::: nrn.nn.LukasiewiczChannelAndBlock
 
-::: torchlogic.nn.LukasiewiczChannelOrBlock
+::: nrn.nn.LukasiewiczChannelOrBlock
 
-::: torchlogic.nn.LukasiewiczChannelXOrBlock
+::: nrn.nn.LukasiewiczChannelXOrBlock
 
-::: torchlogic.nn.LukasiewiczChannelXOrBlock
+::: nrn.nn.LukasiewiczChannelXOrBlock
 
-::: torchlogic.nn.ConcatenateBlocksLogic
+::: nrn.nn.ConcatenateBlocksLogic

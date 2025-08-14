@@ -1,3 +1,3 @@
-::: torchlogic.models.BanditNRNClassifier
+::: nrn.models.BanditNRNClassifier
 
-::: torchlogic.models.BanditNRNRegressor
+::: nrn.models.BanditNRNRegressor

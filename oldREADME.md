@@ -1,10 +1,13 @@
 [//]: # (![Coverage Report]&#40;./assets/coverage.svg&#41;)
 
+![](./static/torchlogic_logo.png)
+
 # <span style="color:#0E6FFF">NRN</span> DOCUMENTATION
 
-_NRN ([Neural Reasoning Networks](https://arxiv.org/abs/2410.07966))_ is a **PyTorch** framework for developing Neuro-Symbolic AI systems
+_NRN (Neural Reasoning Networks)_ is a pytorch framework for developing Neuro-Symbolic AI systems
 based on [Weighted Lukasiewicz Logic](https://arxiv.org/abs/2006.13155).  
-The design principles of _NRN_ provide computational efficiency for neuro‑symbolic AI with GPU scaling.
+The design principles of the _NRN_ provide computational efficiency for Neuro-Symbolic AI through
+GPU scaling.
 
 ### Design Principles
 
@@ -20,21 +23,22 @@ in skill building to develop with _NRN_.
 
 ### Documentation
 
-You’re reading the **official NRN docs**. This site includes installation, quickstart guides, tutorials, and a full API reference.
-
-> **Status:** Alpha — APIs may change; we keep docs aligned with releases. If something looks off, please open an issue or PR.
+The API reference and additional documentation for NRN are available
+on through the </link/to/documentation> site.
+The current code is in an Alpha state so there may be bugs and the functionality
+is expanding quickly.  We'll do our best to keep the documentation up to date
+with the latest changes to our API reflected there.
 
 ### Tutorial
 
 There are several tutorials demonstrating how to use the R-NRN algorithm
 in multiple use cases.
 
-[Tutorial Source](./tutorials/notebooks.md)
+[Tutorial Source](./tutorials/brrn.md)
 
 ### Data Science
 
-To understand the basics of Neural Reasoning Networks
+To understand the basic of the Neural Reasoning Networks
 check out the [Data Science](./ds/rn.md) section, which gives an introduction to some of the
 models developed so far using NRN.
 
-</file>

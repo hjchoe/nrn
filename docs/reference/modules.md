@@ -1,1 +1,1 @@
-::: torchlogic.modules.BanditNRNModule
+::: nrn.modules.BanditNRNModule

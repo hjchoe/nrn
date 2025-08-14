@@ -1,57 +1,66 @@
-site_name: "torchlogic"
-repo_url: "<path/to/repo>"
-docs_dir: 'docs'
-
-nav:
-- Welcome:
-    - Overview: 'index.md'
-    - Installation: 'install/install.md'
-    - Tutorials:
-        - Bandit-RRN: 'tutorials/brn.md'
-- Data Science:
-    - torchlogic Overview: 'ds/overview.md'
-    - Neural Reasoning Networks: 'ds/rn.md'
-    - Bandit-NRN Algorithm: 'ds/brn.md'
-    - Use Cases in AI Workflows: 'ds/usecases.md'
-- API Reference:
-    - nn: 'reference/nn.md'
-    - modules: 'reference/modules.md'
-    - models: 'reference/models.md'
-    - utils: 'reference/utils.md'
+site_name: NRN
+site_description: Neuro-Reasoning Network (NRN) — docs & API reference
+# Fill these with your real values:
+site_url: https://www.centaurinstitute.org/
+repo_url: https://github.com/centaurinstitute/nrn
+repo_name: centaurinstitute/nrn
 
 theme:
-    name: material
-    language: en
-    logo: static/torchlogic_logo_black.png
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+  icon:
+    repo: fontawesome/brands/github
+  # Optional later:
+  # logo: images/logo.png
+  # favicon: images/favicon.png
 
 plugins:
-    - search
-    - git-revision-date
-    - autorefs
-    - mkdocstrings:
-            default_handler: python
-            handlers:
-                python:
-                    setup_commands:
-                        - import sys
-                        - sys.path.append("./torchlogic")
+  - search
+  - autorefs
+  - git-revision-date
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            merge_init_into_class: true
+            members_order: source
+            separate_signature: true
+            show_source: true
+            show_root_toc_entry: false
+            line_length: 88
 
 markdown_extensions:
-    - admonition
-    - attr_list
-    - def_list
-    - pymdownx.tasklist:
-            custom_checkbox: true
-    - pymdownx.emoji
-    - pymdownx.magiclink
-    - pymdownx.snippets:
-        check_paths: true
-    - pymdownx.superfences:
-    - pymdownx.tabbed
-    - pymdownx.tasklist
-    - mkdocs-click
-    - pymdownx.details
-    - footnotes
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.snippets
+  - pymdownx.emoji
 
-extra_css:
-    - 'formatting/extra.css'
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/install.md
+      - Quickstart: getting-started/quickstart.md
+  - API Reference:
+      - RNRNClassifier: api/rnrnclassifier.md
+  - Tutorials: tutorials/notebooks.md
+  - Data Science:
+      - Overview: ds/overview.md
+      - Neural Reasoning Networks: ds/rn.md
+      - Bandit Neural Reasoning Networks: ds/brn.md
+      - Use Cases: ds/usecases.md
+  - Reference:
+      - Models: reference/models.md
+      - Modules: reference/modules.md
+      - NN: reference/nn.md
+      - Utils: reference/utils.md
