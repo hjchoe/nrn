@@ -1,7 +1,5 @@
 [//]: # (![Coverage Report]&#40;./assets/coverage.svg&#41;)
 
-![](./static/torchlogic_logo.png)
-
 # <span style="color:#0E6FFF">NRN</span> DOCUMENTATION
 
 _NRN (Neural Reasoning Networks)_ is a pytorch framework for developing Neuro-Symbolic AI systems
@@ -34,7 +32,7 @@ with the latest changes to our API reflected there.
 There are several tutorials demonstrating how to use the R-NRN algorithm
 in multiple use cases.
 
-[Tutorial Source](./tutorials/brrn.md)
+[Tutorial Source](./tutorials/notebooks.md)
 
 ### Data Science
 

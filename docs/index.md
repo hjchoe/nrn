@@ -36,5 +36,3 @@ in multiple use cases.
 To understand the basics of Neural Reasoning Networks
 check out the [Data Science](./ds/rn.md) section, which gives an introduction to some of the
 models developed so far using NRN.
-
-</file>
