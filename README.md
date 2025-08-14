@@ -19,8 +19,7 @@ Deep Learning.  Neural Reasoning Networks developed with _NRN_ can scale with
 multi-GPU support.  Finally, those familiar with PyTorch development principles will have only a small step
 in skill building to develop with _NRN_.
 
-### Documentation
-[![Docs](https://img.shields.io/badge/docs-latest-blue)](https://hjchoe.github.io/nrn/)
+### Documentation [![Docs](https://img.shields.io/badge/docs-latest-blue)](https://hjchoe.github.io/nrn/)
 
 The API reference and additional documentation for NRN are available
 on through the [site](https://hjchoe.github.io/nrn/).
