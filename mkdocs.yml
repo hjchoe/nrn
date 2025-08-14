@@ -59,8 +59,3 @@ nav:
       - Neural Reasoning Networks: ds/rn.md
       - Bandit Neural Reasoning Networks: ds/brn.md
       - Use Cases: ds/usecases.md
-  - Reference:
-      - Models: reference/models.md
-      - Modules: reference/modules.md
-      - NN: reference/nn.md
-      - Utils: reference/utils.md

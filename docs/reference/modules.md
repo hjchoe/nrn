@@ -1,1 +1,0 @@
-::: nrn.modules.BanditNRNModule
