@@ -16,8 +16,8 @@ theme:
     - search.highlight
   icon:
     repo: fontawesome/brands/github
-  logo: images/centaurailogo.png
-  favicon: images/centaurailogo.png
+  logo: centaurailogo.png
+  favicon: centaurailogo.png
 
 plugins:
   - search
