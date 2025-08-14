@@ -16,6 +16,7 @@ theme:
     - search.highlight
   icon:
     repo: fontawesome/brands/github
+  logo: images/logo.png
   # Optional later:
   # logo: images/logo.png
   # favicon: images/favicon.png
