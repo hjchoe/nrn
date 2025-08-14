@@ -24,4 +24,4 @@ jobs:
           pip install mkdocs mkdocs-material "mkdocstrings[python]" mkdocs-autorefs mkdocs-git-revision-date-plugin
 
       - name: Build & deploy to gh-pages
-        run: mkdocs gh-deploy -f nrn_docs/nrn/mkdocs.yml --force
+        run: mkdocs gh-deploy -f mkdocs.yml --force
